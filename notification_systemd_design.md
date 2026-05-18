@@ -57,3 +57,14 @@ SELECT studentID
 FROM notifications 
 WHERE notificationType = 'Placement' 
   AND createdAt >= NOW() - INTERVAL 7 DAY;
+
+  ---
+
+# Stage 4: Performance & User Experience
+
+Fetching directly from the DB on every page load overwhelms the database. 
+
+## Solutions
+1. **Caching Layer (Redis):** Cache the unread notifications for active users in a Redis cluster. On page load, the frontend hits Redis instead of the primary DB.
+2. **Pagination:** Only fetch the top 10 notifications initially. Use infinite scroll to load more.
+* **Tradeoffs:** Redis introduces state management complexity to ensure cache consistency, and requires additional infrastructure costs.
