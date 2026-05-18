@@ -96,3 +96,19 @@ function process_queue(task):
         if task.type == "email": send_email(task.id, task.msg)
     except Exception:
         message_queue.retry_later(task)
+
+---
+
+# Stage 6: Priority Inbox Implementation
+
+The implementation for the Priority Inbox involves fetching notifications dynamically from the evaluation server and sorting them in memory based on a composite priority score. 
+
+## Weighting Criteria
+* **Placement**: Weight 3 (Highest Priority)
+* **Result**: Weight 2
+* **Event**: Weight 1
+
+## Tie-breaking Logic
+When two notifications have identical type weights, they are sorted by recency (Timestamp) in descending order to ensure the newest critical updates are displayed first. 
+
+The complete, functional implementation code has been successfully executed and added to the `notification_app_be/priority_inbox.js` directory, with console logs verifying the correct execution and filtering of the top 10 items.
