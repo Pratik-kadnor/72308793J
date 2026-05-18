@@ -68,3 +68,31 @@ Fetching directly from the DB on every page load overwhelms the database.
 1. **Caching Layer (Redis):** Cache the unread notifications for active users in a Redis cluster. On page load, the frontend hits Redis instead of the primary DB.
 2. **Pagination:** Only fetch the top 10 notifications initially. Use infinite scroll to load more.
 * **Tradeoffs:** Redis introduces state management complexity to ensure cache consistency, and requires additional infrastructure costs.
+
+---
+
+# Stage 5: Reliability and Bulk Processing
+
+## Shortcomings of the Current Implementation
+The current loop is synchronous. If `send_email` fails midway, the loop crashes, and the remaining students never get their notifications. Saving to the DB and sending emails should **not** happen synchronously together. 
+
+## Redesign: Message Queues
+Save the notification to the DB instantly, and push the actual email delivery tasks to an asynchronous message queue (like RabbitMQ) with automatic retries.
+
+## Revised Pseudocode
+```python
+function notify_all(student_ids: array, message: string):
+    # Bulk insert to DB for high speed
+    save_bulk_to_db(student_ids, message)
+    
+    # Push tasks to asynchronous Message Queue
+    for student_id in student_ids:
+        message_queue.push(task_type="email", id=student_id, msg=message)
+        message_queue.push(task_type="app_push", id=student_id, msg=message)
+
+# Background Worker (Runs independently)
+function process_queue(task):
+    try:
+        if task.type == "email": send_email(task.id, task.msg)
+    except Exception:
+        message_queue.retry_later(task)
