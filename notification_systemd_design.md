@@ -41,3 +41,19 @@ A document database like MongoDB is highly recommended here. Notifications are w
   "isRead": "Boolean",
   "createdAt": "Date"
 }
+---
+
+# Stage 3: Query Optimization
+
+## Query Analysis
+The original query is slow because it forces the database to perform a full table scan across 5,000,000 rows. Adding an index on *every* column is highly ineffective; it drastically slows down write operations and consumes massive storage space.
+
+## The Solution
+Create a **Composite Index** specifically targeting the fields used in the query: `(studentID, isRead, createdAt DESC)`. 
+
+## Query for Placement Notifications (Last 7 Days)
+```sql
+SELECT studentID 
+FROM notifications 
+WHERE notificationType = 'Placement' 
+  AND createdAt >= NOW() - INTERVAL 7 DAY;
