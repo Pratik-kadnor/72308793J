@@ -24,3 +24,20 @@
     }
   ]
 }
+---
+
+# Stage 2: Persistent Storage
+
+## Database Choice: MongoDB (NoSQL)
+A document database like MongoDB is highly recommended here. Notifications are write-heavy and schema requirements can evolve based on the notification type. MongoDB handles high-volume inserts efficiently.
+
+## Schema
+```json
+{
+  "_id": "ObjectId",
+  "studentId": "String (Index)",
+  "notificationType": "String (Enum: Event, Result, Placement)",
+  "message": "String",
+  "isRead": "Boolean",
+  "createdAt": "Date"
+}
